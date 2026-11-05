@@ -23,5 +23,6 @@ def get_data(url):
 
 url = "https://datos.madrid.es/dataset/300094-0-areas-caninas/resource/300094-0-areas-caninas/download/300094-0-areas-caninas.json"
 response_json = get_data(url)
+print(f"{'BARRIO':<50}", f"{'DISTRITO':<25}", f"{'ESTADO':<15}", f"{'TOTAL_ELEM':<15}", f"{'VIA':<15}")
 for elem in response_json:
-    print(elem['BARRIO'], elem['DISTRITO'], elem['ESTADO'], elem['TOTAL_ELEM'])
+    print(f"{elem['BARRIO']:<50}", f"{elem['DISTRITO']:<25}", f"{elem['ESTADO']:<15}", f"{elem['TOTAL_ELEM']:<15}", f"{elem['TIPO_VIA']+' '+elem['NOM_VIA']+' '+elem['NUM_VIA']:<15}")
