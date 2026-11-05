@@ -1,4 +1,5 @@
 import requests
+import json
 
 def get_data(url):
     try:
@@ -21,4 +22,6 @@ def get_data(url):
     return None
 
 url = "https://datos.madrid.es/dataset/300094-0-areas-caninas/resource/300094-0-areas-caninas/download/300094-0-areas-caninas.json"
-print(get_data(url))
+response_json = get_data(url)
+for elem in response_json:
+    print(elem['BARRIO'], elem['DISTRITO'], elem['ESTADO'], elem['TOTAL_ELEM'])
