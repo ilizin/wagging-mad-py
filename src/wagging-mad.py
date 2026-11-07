@@ -6,7 +6,7 @@ from InquirerPy import inquirer
 from InquirerPy.base.control import Choice
 from InquirerPy.separator import Separator
 from InquirerPy import inquirer
-import csv
+import re
 
 def get_data(url):
     try:
@@ -40,9 +40,9 @@ response_json2 = get_data(url2)
 #    print(f"{elem['DISTRITO']:<25}", f"{elem['ESTADO']:<15}", f"{elem['TOTAL_ELEM']:<15}", f"{address:<15}")
     
 #print(response_json2['result']['records'])
-ditricts = []
+districts = {}
 for elem in response_json2['result']['records']:
-    districts.append(elem['NOMBRE'])
+    districts[elem['NOMBRE']] = None
     
 console = Console()
 console.clear()
@@ -55,8 +55,8 @@ centered_title = Align.center(title_text)
 # Print the centered title to the console
 console.print(centered_title)
 
-console.print(Panel("Hello, [red]World!"))
-console.print(Panel("Hello, [red]World!", title="Welcome", subtitle="Thank you"))
+#console.print(Panel("Hello, [red]World!"))
+#console.print(Panel("Hello, [red]World!", title="Welcome", subtitle="Thank you"))
 
 action = inquirer.select(
         message="Search for dog parks:",
@@ -71,8 +71,18 @@ action = inquirer.select(
     ).execute()
 
 if action == "District":
-    company = inquirer.text(
-        message="Which company would you like to apply:",
-        completer=ditricts,
+    district = inquirer.text(
+        message="Enter a valid Madrid district:",
+        completer=districts,
+        validate=lambda result: result in districts,
+        invalid_message="The district entered is invalid",
+        multicolumn_complete=True,
+    ).execute()
+
+if action == 'Zip code':
+    district = inquirer.text(
+        message="Enter a valid Madrid postal code:",
+        validate=lambda result: re.search("^28[0-9][0-9][0-9]", result),
+        invalid_message="The postal code entered is invalid",
         multicolumn_complete=True,
     ).execute()
