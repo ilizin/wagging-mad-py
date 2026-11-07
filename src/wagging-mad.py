@@ -6,6 +6,8 @@ from InquirerPy import inquirer
 from InquirerPy.base.control import Choice
 from InquirerPy.separator import Separator
 from InquirerPy import inquirer
+from rich import box
+
 import re
 
 def get_data(url):
@@ -45,7 +47,7 @@ for elem in response_json2['result']['records']:
     districts[elem['NOMBRE']] = None
     
 console = Console()
-console.clear()
+
 title_text = "[bold cyan]WaggingMadPy[/bold cyan]"
 centered_title = Align.center(title_text)
 
@@ -53,36 +55,43 @@ centered_title = Align.center(title_text)
 # centered_panel = Panel(title_text, title_align="center", expand=True)
 
 # Print the centered title to the console
-console.print(centered_title)
 
 #console.print(Panel("Hello, [red]World!"))
 #console.print(Panel("Hello, [red]World!", title="Welcome", subtitle="Thank you"))
 
-action = inquirer.select(
+while (True):
+    console.clear()
+    console.print(Panel(centered_title,  box.SQUARE))
+
+    action = inquirer.select(
         message="Search for dog parks:",
         choices=[
             "District",
             "Zip code",
             "Address",
             Separator(),
-            Choice(value=None, name="Exit"),
+            "Help",
+            "Exit",
         ],
         default=None,
     ).execute()
 
-if action == "District":
-    district = inquirer.text(
+    if action == "District":
+        district = inquirer.text(
         message="Enter a valid Madrid district:",
         completer=districts,
-        validate=lambda result: result in districts,
+        validate=lambda result: result in districts or result == 'exit',
         invalid_message="The district entered is invalid",
         multicolumn_complete=True,
-    ).execute()
+        ).execute()
 
-if action == 'Zip code':
-    district = inquirer.text(
+    if action == 'Zip code':
+        district = inquirer.text(
         message="Enter a valid Madrid postal code:",
-        validate=lambda result: re.search("^28[0-9][0-9][0-9]", result),
+        validate=lambda result: re.search("^28[0-9][0-9][0-9]", result) or result == 'exit',
         invalid_message="The postal code entered is invalid",
         multicolumn_complete=True,
-    ).execute()
+        ).execute()
+        
+    if action == 'Exit' or action == 'exit':
+        break;
