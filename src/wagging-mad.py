@@ -49,7 +49,7 @@ for elem in response_json2['result']['records']:
 console = Console()
 
 title_text = "[bold cyan]WaggingMadPy[/bold cyan]"
-centered_title = Align.center(title_text)
+centered_panel = Align.center(Panel(title_text,  box.SQUARE, expand=False))
 
 # Method B: Using Panel with title_align (Creates a boxed title)
 # centered_panel = Panel(title_text, title_align="center", expand=True)
@@ -61,37 +61,43 @@ centered_title = Align.center(title_text)
 
 while (True):
     console.clear()
-    console.print(Panel(centered_title,  box.SQUARE))
-
+    console.print(centered_panel)
+    console.print()
     action = inquirer.select(
-        message="Search for dog parks:",
+        message="Search for dog parks in Madrid:",
         choices=[
+            Separator(" "),
             "District",
             "Zip code",
             "Address",
             Separator(),
-            "Help",
+            "About",
             "Exit",
         ],
         default=None,
+        long_instruction="ENTER=Confirm, ↑=Up, ↓=Down",
     ).execute()
 
     if action == "District":
-        district = inquirer.text(
-        message="Enter a valid Madrid district:",
-        completer=districts,
-        validate=lambda result: result in districts or result == 'exit',
-        invalid_message="The district entered is invalid",
-        multicolumn_complete=True,
+            district = inquirer.text(
+            message="Enter a valid Madrid district:",
+            completer=districts,
+            validate=lambda result: result in districts or result == 'exit',
+            invalid_message="The district entered is invalid",
+            multicolumn_complete=True,
+            long_instruction="ENTER=Confirm, Esc=Home",
         ).execute()
 
     if action == 'Zip code':
         district = inquirer.text(
-        message="Enter a valid Madrid postal code:",
-        validate=lambda result: re.search("^28[0-9][0-9][0-9]", result) or result == 'exit',
-        invalid_message="The postal code entered is invalid",
-        multicolumn_complete=True,
+            message="Enter a valid Madrid postal code:",
+            validate=lambda result: re.search("^28[0-9][0-9][0-9]", result) or result == 'exit',
+            invalid_message="The postal code entered is invalid",
+            multicolumn_complete=True,
+            long_instruction="ENTER=Confirm, Esc=Home",
         ).execute()
         
-    if action == 'Exit' or action == 'exit':
+    if action == 'Exit':
         break;
+        
+     
