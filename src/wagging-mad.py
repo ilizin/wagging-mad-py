@@ -59,11 +59,7 @@ centered_panel = Align.center(Panel(title_text,  box.SQUARE, expand=False))
 #console.print(Panel("Hello, [red]World!"))
 #console.print(Panel("Hello, [red]World!", title="Welcome", subtitle="Thank you"))
 
-while (True):
-    console.clear()
-    console.print(centered_panel)
-    console.print()
-    action = inquirer.select(
+search_type_select = inquirer.select(
         message="Search for dog parks in Madrid:",
         choices=[
             Separator(" "),
@@ -76,28 +72,48 @@ while (True):
         ],
         default=None,
         long_instruction="ENTER=Confirm, ↑=Up, ↓=Down",
-    ).execute()
-
-    if action == "District":
-            district = inquirer.text(
+    )
+district_in_text = inquirer.text(
             message="Enter a valid Madrid district:",
             completer=districts,
             validate=lambda result: result in districts or result == 'exit',
             invalid_message="The district entered is invalid",
             multicolumn_complete=True,
             long_instruction="ENTER=Confirm, Esc=Home",
-        ).execute()
-
-    if action == 'Zip code':
-        district = inquirer.text(
+        )
+postal_code_in_text = inquirer.text(
             message="Enter a valid Madrid postal code:",
             validate=lambda result: re.search("^28[0-9][0-9][0-9]", result) or result == 'exit',
             invalid_message="The postal code entered is invalid",
             multicolumn_complete=True,
             long_instruction="ENTER=Confirm, Esc=Home",
-        ).execute()
+        )
+
+@district_in_text.register_kb("escape")
+def _handle_delete(event):
+    #choice_name = district_in_text.result_name
+    #choice_value= district_in_text.result_value
+    # some logic for processing
+    # ...
+    # skipping the prompt after processing
+    district_in_text._mandatory = False
+    district_in_text._handle_skip(event)
+    # answer the prompt normally after processing
+    district_in_text._handle_enter(event)
+    
+while (True):
+    console.clear()
+    console.print(centered_panel)
+    console.print()
+    action = search_type_select.execute()
+
+    if action == "District":
+        district = district_in_text.execute()
+
+    if action == 'Zip code':
+        posta_code = postal_code_in_text.execute()
         
-    if action == 'Exit':
+    if action == 'Exit' or district == 'd':
         break;
         
      
