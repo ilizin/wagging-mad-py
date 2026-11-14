@@ -1,14 +1,24 @@
 import requests
-from rich.console import Console
-from rich.align import Align
-from rich.panel import Panel
-from InquirerPy import inquirer
-from InquirerPy.base.control import Choice
-from InquirerPy.separator import Separator
-from InquirerPy import inquirer
-from rich import box
+
+from prompt_toolkit.filters import is_done
+from prompt_toolkit.formatted_text import HTML
+from prompt_toolkit.shortcuts import choice, set_title, clear
+from prompt_toolkit.styles import Style
+
+from prompt_toolkit.buffer import Buffer
+from prompt_toolkit.layout.containers import VSplit, Window
+from prompt_toolkit.layout.controls import BufferControl, FormattedTextControl
+from prompt_toolkit.layout.layout import Layout
+
+from prompt_toolkit import prompt, print_formatted_text
+from prompt_toolkit.formatted_text import HTML
+
+import shutil
+import textwrap
 
 import re
+
+
 
 def get_data(url):
     try:
@@ -27,8 +37,9 @@ def get_data(url):
         print(f"Error general en la petición: {err}")
     except ValueError:
         print("La respuesta recibida no es un JSON válido")
-
     return None
+    
+
 
 url = "https://datos.madrid.es/dataset/300094-0-areas-caninas/resource/300094-0-areas-caninas/download/300094-0-areas-caninas.json"
 url2 = "https://datos.madrid.es/api/3/action/datastore_search?resource_id=300497-3-distritos-municipales-madrid"
@@ -41,10 +52,13 @@ districts = {}
 for elem in response_json2['result']['records']:
     districts[elem['NOMBRE']] = None
     
-console = Console()
 
-title_text = "[bold cyan]WaggingMadPy[/bold cyan]"
-centered_panel = Align.center(Panel(title_text,  box.SQUARE, expand=False))
+
+
+
+clear()
+
+
 
 # Method B: Using Panel with title_align (Creates a boxed title)
 # centered_panel = Panel(title_text, title_align="center", expand=True)
@@ -54,52 +68,52 @@ centered_panel = Align.center(Panel(title_text,  box.SQUARE, expand=False))
 #console.print(Panel("Hello, [red]World!"))
 #console.print(Panel("Hello, [red]World!", title="Welcome", subtitle="Thank you"))
 
+#while (True):
 
 
-postal_code_in_text = inquirer.text(
-            message="Enter a valid Madrid postal code:",
-            validate=lambda result: re.search("^28[0-9][0-9][0-9]", result),
-            invalid_message="The postal code entered is invalid",
-            #multicolumn_complete=True,
-            long_instruction="ENTER=Confirm, Esc=Home",
-        )
+
+style = Style.from_dict(
+    {
+        "frame.border": "#ff4444",
+        "selected-option": "bold",
+        # ('noreverse' because the default toolbar style uses 'reverse')
+        "bottom-toolbar": "#ffffff bg:#333333 noreverse",
+    }
+)
+
+set_title("WaggingMadPy")
+
+import sys
+
+def set_terminal_size(rows: int, columns: int) -> None:
+    # Escape sequence: \x1b[8;{rows};{columns}t
+    sys.stdout.write(f"\x1b[8;{rows};{columns}t")
+    sys.stdout.flush()
+
+# Set terminal to 30 rows by 100 columns
+set_terminal_size(30, 100)
+print_formatted_text()
+print_formatted_text(HTML('<b> In Madrid, dog areas (áreas caninas or pipicanes) are designated, fenced-in public spaces located</b>'))
+print_formatted_text(HTML('<b> within urban parks and green areas where dogs are legally allowed to run, play, and socialize </b>'))
+print_formatted_text(HTML('<b> completely off-leash. Maintained by the city council, these enclosures offer a safe environment </b>')) 
+print_formatted_text(HTML('<b> away from traffic and general footpaths, helping pet owners integrate their dogs harmoniously into </b>'))
+print_formatted_text(HTML('<b> urban life.</b>'))
 
 
-    
-while (True):
-    console.clear()
-    console.print(centered_panel)
-    console.print()
-    action = inquirer.select(
-        message="Search for dog parks in Madrid:",
-        choices=[
-            Separator(" "),
-            "District",
-            "Zip code",
-            "Address",
-            Separator(),
-            "About",
-            "Exit",
-        ],
-        default=None,
-        long_instruction="ENTER=Confirm, ↑=Up, ↓=Down",
-    ).execute()
+result = choice(
+    message=HTML("<u>Search for dog parks in Madrid:</u>:"),
+    options=[
+        ("district", "District"),
+        ("postal", "Postal code"),
+        ("address", "Address"),
+        ("about", "About"),
+        ("exit", "Exit"),
+    ],
+    style=style,
+    bottom_toolbar=HTML(
+        " Press <b>[Up]</b>/<b>[Down]</b> to select, <b>[Enter]</b> to accept."
+    ),
+    show_frame=True,
+)       
 
-    if action == "District":
-        district = inquirer.text(
-            message="Enter a valid Madrid district:",
-            completer=districts,
-            validate=lambda result: result in districts,
-            invalid_message="The district entered is invalid",
-            multicolumn_complete=True,
-            long_instruction="ENTER=Confirm, Esc=Home",
-            keybindings=keybindings,
-        ).execute()
 
-    if action == 'Zip code':
-        posta_code = postal_code_in_text.execute()
-        
-    if action == 'Exit':
-        break;
-        
-     
