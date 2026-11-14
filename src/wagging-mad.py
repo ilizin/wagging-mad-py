@@ -56,7 +56,6 @@ for elem in response_json2['result']['records']:
 
 
 
-clear()
 
 
 
@@ -90,6 +89,11 @@ def set_terminal_size(rows: int, columns: int) -> None:
     sys.stdout.write(f"\x1b[8;{rows};{columns}t")
     sys.stdout.flush()
 
+
+
+
+clear()
+
 # Set terminal to 30 rows by 100 columns
 set_terminal_size(30, 100)
 print_formatted_text()
@@ -116,4 +120,5 @@ result = choice(
     show_frame=True,
 )       
 
-
+if result == 'district'
+    answer = prompt("Say something > ", style=style, show_frame=True)
