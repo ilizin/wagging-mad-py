@@ -22,7 +22,7 @@ import re
 
 def get_data(url):
     try:
-        response = requests.get(url, timeout=10)
+        response = requests.get(url, timeout=20)
         response.raise_for_status()
         response_json = response.json()
         return response_json
@@ -46,6 +46,7 @@ url2 = "https://datos.madrid.es/api/3/action/datastore_search?resource_id=300497
 
 response_json = get_data(url)
 response_json2 = get_data(url2)
+from prompt_toolkit.completion import WordCompleter
 
 
 districts = {}
@@ -54,7 +55,7 @@ for elem in response_json2['result']['records']:
     
 
 
-
+html_completer = WordCompleter(districts)
 
 
 
@@ -89,23 +90,41 @@ def set_terminal_size(rows: int, columns: int) -> None:
     sys.stdout.write(f"\x1b[8;{rows};{columns}t")
     sys.stdout.flush()
 
+from prompt_toolkit.application import run_in_terminal
+from prompt_toolkit.key_binding import KeyBindings
+
+bindings = KeyBindings()
+
+@bindings.add("escape")
+def _(event):
+    event.app.exit()
+
+from prompt_toolkit.validation import Validator
 
 
+def is_number(text):
+    return text in districts
+    
+valid = Validator.from_callable(
+    is_number,
+    error_message="This input contains non-numeric characters",
+    move_cursor_to_end=True
+)
 
-clear()
+while (True):
+    clear()
 
-# Set terminal to 30 rows by 100 columns
-set_terminal_size(30, 100)
-print_formatted_text()
-print_formatted_text(HTML('<b> In Madrid, dog areas (áreas caninas or pipicanes) are designated, fenced-in public spaces located</b>'))
-print_formatted_text(HTML('<b> within urban parks and green areas where dogs are legally allowed to run, play, and socialize </b>'))
-print_formatted_text(HTML('<b> completely off-leash. Maintained by the city council, these enclosures offer a safe environment </b>')) 
-print_formatted_text(HTML('<b> away from traffic and general footpaths, helping pet owners integrate their dogs harmoniously into </b>'))
-print_formatted_text(HTML('<b> urban life.</b>'))
+    # Set terminal to 30 rows by 100 columns
+    set_terminal_size(30, 100)
+    print_formatted_text()
+    print_formatted_text(HTML('<b> In Madrid, dog areas (áreas caninas or pipicanes) are designated, fenced-in public spaces located</b>'))
+    print_formatted_text(HTML('<b> within urban parks and green areas where dogs are legally allowed to run, play, and socialize </b>'))
+    print_formatted_text(HTML('<b> completely off-leash. Maintained by the city council, these enclosures offer a safe environment </b>')) 
+    print_formatted_text(HTML('<b> away from traffic and general footpaths, helping pet owners integrate their dogs harmoniously into </b>'))
+    print_formatted_text(HTML('<b> urban life.</b>'))
 
-
-result = choice(
-    message=HTML("<u>Search for dog parks in Madrid:</u>:"),
+    result = choice(
+    message=HTML("\U0001F436 <u>Search for dog parks in Madrid</u>:"),
     options=[
         ("district", "District"),
         ("postal", "Postal code"),
@@ -118,7 +137,32 @@ result = choice(
         " Press <b>[Up]</b>/<b>[Down]</b> to select, <b>[Enter]</b> to accept."
     ),
     show_frame=True,
-)       
+    )       
 
-if result == 'district'
-    answer = prompt("Say something > ", style=style, show_frame=True)
+    if result == 'district':
+        answer = prompt("Enter a valid Madrid district: ",
+        style=style, 
+        show_frame=True,
+        bottom_toolbar=HTML(
+        " Press <b>[Up]</b>/<b>[Down]</b> to select, press <b>[Enter]</b> to accept, <b>[Esc]</b> to cancel."
+        ),
+        multiline=False,
+        key_bindings=bindings,
+        completer=html_completer,
+        validator=valid,
+        validate_while_typing=False)
+    
+    if result == 'postal':
+        answer = prompt("Enter a valid Madrid postal code: ",
+        style=style, 
+        show_frame=True,
+        bottom_toolbar=HTML(
+        " Press <b>[Up]</b>/<b>[Down]</b> to select, press <b>[Enter]</b> to accept, <b>[Esc]</b> to cancel."
+        ),
+        multiline=False,
+        key_bindings=bindings)
+     
+    if result == 'exit':
+        break;
+        
+clear()
