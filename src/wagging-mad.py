@@ -153,8 +153,15 @@ while (True):
         validate_while_typing=False)
         
         if answer != None:
-            print("hello")
-            a = input()
+            for elem in response_json:
+                #print(answer)
+                #print(elem['DISTRITO'])
+                if elem['DISTRITO'].strip().lower() == answer.strip().lower():
+                    print(elem)
+            input()
+            
+            
+            
     if result == 'postal':
         answer = prompt("Enter a valid Madrid postal code: ",
         style=style, 
