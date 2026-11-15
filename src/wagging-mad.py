@@ -58,7 +58,7 @@ for elem in response_json2['result']['records']:
 html_completer = WordCompleter(districts)
 
 
-
+print(response_json)
 
 # Method B: Using Panel with title_align (Creates a boxed title)
 # centered_panel = Panel(title_text, title_align="center", expand=True)
@@ -103,7 +103,7 @@ from prompt_toolkit.validation import Validator
 
 
 def is_number(text):
-    return text in districts
+    return text.strip() in districts
     
 valid = Validator.from_callable(
     is_number,
@@ -144,20 +144,23 @@ while (True):
         style=style, 
         show_frame=True,
         bottom_toolbar=HTML(
-        " Press <b>[Up]</b>/<b>[Down]</b> to select, press <b>[Enter]</b> to accept, <b>[Esc]</b> to cancel."
+        " Press <b>[Space]</b> to see all the districts, <b>[Up]</b>/<b>[Down]</b> to select, <b>[Enter]</b> to accept, <b>[Esc]</b> to cancel."
         ),
         multiline=False,
         key_bindings=bindings,
         completer=html_completer,
         validator=valid,
         validate_while_typing=False)
-    
+        
+        if answer != None:
+            print("hello")
+            a = input()
     if result == 'postal':
         answer = prompt("Enter a valid Madrid postal code: ",
         style=style, 
         show_frame=True,
         bottom_toolbar=HTML(
-        " Press <b>[Up]</b>/<b>[Down]</b> to select, press <b>[Enter]</b> to accept, <b>[Esc]</b> to cancel."
+        " Press <b>[Enter]</b> to accept, <b>[Esc]</b> to cancel."
         ),
         multiline=False,
         key_bindings=bindings)
