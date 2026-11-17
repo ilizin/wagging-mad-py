@@ -21,6 +21,8 @@ import re
 from rich.console import Console
 from rich.table import Table
 
+from rich.align import Align
+
 
 def get_data(url):
     try:
@@ -156,10 +158,12 @@ while (True):
         
         if answer != None:
             print();
+
             table = Table(title="Dog areas - District:" + answer)
             table.add_column("Neighborhood", style="cyan", no_wrap=True)
             table.add_column("Address", style="magenta")
             table.add_column("Postal code", justify="center", style="green")
+            table = Align.center(table, vertical="middle")
             for elem in response_json:
                 
                 #print(elem['DISTRITO'])
