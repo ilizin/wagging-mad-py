@@ -109,8 +109,17 @@ from prompt_toolkit.validation import Validator
 def is_number(text):
     return text.strip() in districts
     
+def is_number2(text):
+    return re.search("^28[0-9][0-9][0-9]", text)
+    
 valid = Validator.from_callable(
     is_number,
+    error_message="This input contains non-numeric characters",
+    move_cursor_to_end=True
+)
+
+valid2 = Validator.from_callable(
+    is_number2,
     error_message="This input contains non-numeric characters",
     move_cursor_to_end=True
 )
@@ -163,7 +172,7 @@ while (True):
             table.add_column("Neighborhood", style="cyan", no_wrap=True)
             table.add_column("Address", style="magenta")
             table.add_column("Postal code", justify="center", style="green")
-            table = Align.center(table, vertical="middle")
+            #table = Align.center(table, vertical="middle")
             for elem in response_json:
                 
                 #print(elem['DISTRITO'])
@@ -186,7 +195,29 @@ while (True):
         " Press <b>[Enter]</b> to accept, <b>[Esc]</b> to cancel."
         ),
         multiline=False,
-        key_bindings=bindings)
+        key_bindings=bindings, 
+        validator=valid2,
+        validate_while_typing=False)
+        
+        if answer != None:
+            print();
+
+            table = Table(title="Dog areas - Postal code:" + answer)
+            table.add_column("Neighborhood", style="cyan", no_wrap=True)
+            table.add_column("Address", style="magenta")
+            table.add_column("Postal code", justify="center", style="green")
+            #table = Align.center(table, vertical="middle")
+            for elem in response_json:
+                
+                #print(elem['DISTRITO'])
+                if elem['COD_POSTAL'] != None and elem['COD_POSTAL'].strip().lower() == answer.strip().lower():
+                    table.add_row(elem['BARRIO'].strip(), elem['TIPO_VIA'].strip() +  " " + elem['NOM_VIA'].strip() + " " + elem['NUM_VIA'].strip(), elem['COD_POSTAL'].strip())
+                    
+            console = Console()
+            console.print(table)
+                    
+                    
+            input()
      
     if result == 'exit':
         break;
