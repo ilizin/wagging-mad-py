@@ -18,6 +18,8 @@ import textwrap
 
 import re
 
+from rich.console import Console
+from rich.table import Table
 
 
 def get_data(url):
@@ -153,11 +155,21 @@ while (True):
         validate_while_typing=False)
         
         if answer != None:
+            print();
+            table = Table(title="Dog areas - District:" + answer)
+            table.add_column("Neighborhood", style="cyan", no_wrap=True)
+            table.add_column("Address", style="magenta")
+            table.add_column("Postal code", justify="center", style="green")
             for elem in response_json:
-                #print(answer)
+                
                 #print(elem['DISTRITO'])
                 if elem['DISTRITO'].strip().lower() == answer.strip().lower():
-                    print(elem)
+                    table.add_row(elem['BARRIO'].strip(), elem['TIPO_VIA'].strip() +  " " + elem['NOM_VIA'].strip() + " " + elem['NUM_VIA'].strip(), elem['COD_POSTAL'].strip())
+                    
+            console = Console()
+            console.print(table)
+                    
+                    
             input()
             
             
