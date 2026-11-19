@@ -18,6 +18,9 @@ import textwrap
 
 import re
 
+from rich.text import Text
+
+
 from rich.console import Console
 from rich.table import Table
 
@@ -124,11 +127,13 @@ valid2 = Validator.from_callable(
     move_cursor_to_end=True
 )
 
+console = Console()
+
 while (True):
     clear()
 
     # Set terminal to 30 rows by 100 columns
-    set_terminal_size(30, 100)
+    set_terminal_size(40, 100)
     print_formatted_text()
     print_formatted_text(HTML('<b> In Madrid, dog areas (áreas caninas or pipicanes) are designated, fenced-in public spaces located</b>'))
     print_formatted_text(HTML('<b> within urban parks and green areas where dogs are legally allowed to run, play, and socialize </b>'))
@@ -179,8 +184,8 @@ while (True):
                 if elem['DISTRITO'].strip().lower() == answer.strip().lower():
                     table.add_row(elem['BARRIO'].strip(), elem['TIPO_VIA'].strip() +  " " + elem['NOM_VIA'].strip() + " " + elem['NUM_VIA'].strip(), elem['COD_POSTAL'].strip())
                     
-            console = Console()
-            console.print(table)
+            align = Align(table,'center')
+            console.print(align)
                     
                     
             input()
@@ -203,19 +208,21 @@ while (True):
             print();
 
             table = Table(title="Dog areas - Postal code:" + answer)
+            table.add_column("District", justify="center", style="green")
             table.add_column("Neighborhood", style="cyan", no_wrap=True)
             table.add_column("Address", style="magenta")
-            table.add_column("Postal code", justify="center", style="green")
             #table = Align.center(table, vertical="middle")
             for elem in response_json:
                 
                 #print(elem['DISTRITO'])
                 if elem['COD_POSTAL'] != None and elem['COD_POSTAL'].strip().lower() == answer.strip().lower():
-                    table.add_row(elem['BARRIO'].strip(), elem['TIPO_VIA'].strip() +  " " + elem['NOM_VIA'].strip() + " " + elem['NUM_VIA'].strip(), elem['COD_POSTAL'].strip())
+                    table.add_row(elem['DISTRITO'].strip(), elem['BARRIO'].strip(), elem['TIPO_VIA'].strip() +  " " + elem['NOM_VIA'].strip() + " " + elem['NUM_VIA'].strip())
                     
-            console = Console()
-            console.print(table)
-                    
+            
+            
+           
+            align = Align(table,'center')
+            console.print(align)
                     
             input()
      
