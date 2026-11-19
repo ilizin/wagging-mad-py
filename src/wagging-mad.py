@@ -20,7 +20,7 @@ import re
 
 from rich.text import Text
 
-
+from datetime import date
 from rich.console import Console
 from rich.table import Table
 
@@ -56,16 +56,18 @@ response_json2 = get_data(url2)
 from prompt_toolkit.completion import WordCompleter
 
 
-districts = {}
+districts = []
 for elem in response_json2['result']['records']:
-    districts[elem['NOMBRE']] = None
+    print(elem['NOMBRE'])
+    districts.append(elem['NOMBRE'])
     
+print(districts)
 
 
 html_completer = WordCompleter(districts)
 
 
-print(response_json)
+#print(response_json)
 
 # Method B: Using Panel with title_align (Creates a boxed title)
 # centered_panel = Panel(title_text, title_align="center", expand=True)
@@ -129,6 +131,14 @@ valid2 = Validator.from_callable(
 
 console = Console()
 
+date.fromtimestamp(1599696000)
+
+a = 1599696000000 // 1000
+print(a)
+print(date.today())
+print(date.fromtimestamp(1599696000).strftime("%m/%d/%Y"))
+input()
+
 while (True):
     clear()
 
@@ -147,6 +157,7 @@ while (True):
         ("district", "District"),
         ("postal", "Postal code"),
         ("address", "Address"),
+        ("all", "All"),
         ("about", "About"),
         ("exit", "Exit"),
     ],
@@ -177,12 +188,16 @@ while (True):
             table.add_column("Neighborhood", style="cyan", no_wrap=True)
             table.add_column("Address", style="magenta")
             table.add_column("Postal code", justify="center", style="green")
+            table.add_column("Installation date", style="magenta")
+            table.add_column("State", justify="center", style="green")
             #table = Align.center(table, vertical="middle")
             for elem in response_json:
-                
+                a = elem['FECHA_INSTALACION']
+                a = a / 1000
+                strr = date.fromtimestamp(a).strftime("%m/%d/%Y")
                 #print(elem['DISTRITO'])
                 if elem['DISTRITO'].strip().lower() == answer.strip().lower():
-                    table.add_row(elem['BARRIO'].strip(), elem['TIPO_VIA'].strip() +  " " + elem['NOM_VIA'].strip() + " " + elem['NUM_VIA'].strip(), elem['COD_POSTAL'].strip())
+                    table.add_row(elem['BARRIO'].strip(), elem['TIPO_VIA'].strip() +  " " + elem['NOM_VIA'].strip() + " " + elem['NUM_VIA'].strip(), elem['COD_POSTAL'].strip(), strr, elem['ESTADO'].strip())
                     
             align = Align(table,'center')
             console.print(align)
@@ -190,7 +205,34 @@ while (True):
                     
             input()
             
+    if result == 'all':
+        table = Table(title="Dog areas")
+        table.add_column("District", justify="center", style="green")
+        table.add_column("Neighborhood", style="cyan", no_wrap=True)
+        table.add_column("Address", style="magenta")
+        #table.add_column("Installation date", style="magenta")
+        table.add_column("State", style="magenta")
+        #table = Align.center(table, vertical="middle")
+        for elem in response_json:
+            dist = elem['DISTRITO'].strip()
+            bb = elem['BARRIO'].strip()
+            via = elem['TIPO_VIA']
+            if via == None:
+                via = ""
+            else:
+                via = via + " " + elem['NOM_VIA'].strip() + " " + elem['NUM_VIA'].strip()
+            st = elem['ESTADO']
+            if st == None: 
+                st = ""
+            table.add_row(dist, bb, via, st)
+                    
             
+            
+           
+        align = Align(table,'center')
+        console.print(align)
+                    
+        input()
             
     if result == 'postal':
         answer = prompt("Enter a valid Madrid postal code: ",
@@ -211,12 +253,16 @@ while (True):
             table.add_column("District", justify="center", style="green")
             table.add_column("Neighborhood", style="cyan", no_wrap=True)
             table.add_column("Address", style="magenta")
+            table.add_column("Installation date", style="magenta")
+            table.add_column("State", style="magenta")
             #table = Align.center(table, vertical="middle")
             for elem in response_json:
-                
+                a = elem['FECHA_INSTALACION']
+                a = a / 1000
+                strr = date.fromtimestamp(a).strftime("%m/%d/%Y")
                 #print(elem['DISTRITO'])
                 if elem['COD_POSTAL'] != None and elem['COD_POSTAL'].strip().lower() == answer.strip().lower():
-                    table.add_row(elem['DISTRITO'].strip(), elem['BARRIO'].strip(), elem['TIPO_VIA'].strip() +  " " + elem['NOM_VIA'].strip() + " " + elem['NUM_VIA'].strip())
+                    table.add_row(elem['DISTRITO'].strip(), elem['BARRIO'].strip(), elem['TIPO_VIA'].strip() +  " " + elem['NOM_VIA'].strip() + " " + elem['NUM_VIA'].strip(), strr, elem['ESTADO'].strip())
                     
             
             
