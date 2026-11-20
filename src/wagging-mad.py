@@ -1,30 +1,22 @@
 import requests
+import re
+from datetime import date
+
+from rich.text import Text
+from rich.console import Console
+from rich.table import Table
+from rich.align import Align
 
 from prompt_toolkit.filters import is_done
 from prompt_toolkit.formatted_text import HTML
 from prompt_toolkit.shortcuts import choice, set_title, clear
 from prompt_toolkit.styles import Style
-
 from prompt_toolkit.buffer import Buffer
 from prompt_toolkit.layout.containers import VSplit, Window
 from prompt_toolkit.layout.controls import BufferControl, FormattedTextControl
 from prompt_toolkit.layout.layout import Layout
-
 from prompt_toolkit import prompt, print_formatted_text
 from prompt_toolkit.formatted_text import HTML
-
-import shutil
-import textwrap
-
-import re
-
-from rich.text import Text
-
-from datetime import date
-from rich.console import Console
-from rich.table import Table
-
-from rich.align import Align
 
 
 def get_data(url):
@@ -67,17 +59,6 @@ print(districts)
 html_completer = WordCompleter(districts)
 
 
-#print(response_json)
-
-# Method B: Using Panel with title_align (Creates a boxed title)
-# centered_panel = Panel(title_text, title_align="center", expand=True)
-
-# Print the centered title to the console
-
-#console.print(Panel("Hello, [red]World!"))
-#console.print(Panel("Hello, [red]World!", title="Welcome", subtitle="Thank you"))
-
-#while (True):
 
 
 
