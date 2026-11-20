@@ -47,8 +47,6 @@ for temp in districts_json['result']['records']:
     districts.append(temp['NOMBRE'])
     districts_code.append(temp['COD_DIS'])
 
-html_completer = WordCompleter(districts)
-
 style = Style.from_dict(
     {
         "frame.border": "#ff4444",
@@ -57,8 +55,6 @@ style = Style.from_dict(
         "bottom-toolbar": "#ffffff bg:#333333 noreverse",
     }
 )
-
-set_title("WaggingMadPy")
 
 def set_terminal_size(rows: int, columns: int) -> None:
     sys.stdout.write(f"\x1b[8;{rows};{columns}t")
@@ -70,30 +66,34 @@ bindings = KeyBindings()
 def _(event):
     event.app.exit()
 
-def is_number(text):
+def is_valid_district(text):
     return text.strip() in districts
     
-def is_number2(text):
+def is_valid_postal_code(text):
     return re.search("^28[0-9][0-9][0-9]", text)
     
-valid = Validator.from_callable(
-    is_number,
-    error_message="This input contains non-numeric characters",
+def draw_table():
+    pass
+    
+district_validator = Validator.from_callable(
+    is_valid_district,
+    error_message="The district is not valid",
     move_cursor_to_end=True
 )
 
-valid2 = Validator.from_callable(
-    is_number2,
-    error_message="This input contains non-numeric characters",
+postal_code_validator = Validator.from_callable(
+    is_valid_postal_code,
+    error_message="The postal code is not valid",
     move_cursor_to_end=True
 )
 
+set_title("WaggingMadPy")
+districts_completer = WordCompleter(districts)
 console = Console()
 
 while (True):
     clear()
 
-    # Set terminal to 30 rows by 100 columns
     set_terminal_size(40, 100)
     print_formatted_text()
     print_formatted_text(HTML('<b> In Madrid, dog areas (áreas caninas or pipicanes) are designated, fenced-in public spaces located</b>'))
@@ -103,20 +103,20 @@ while (True):
     print_formatted_text(HTML('<b> urban life.</b>'))
 
     result = choice(
-    message=HTML("\U0001F436 <u>Search for dog parks in Madrid</u>:"),
-    options=[
-        ("district", "District"),
-        ("postal", "Postal code"),
-        ("address", "Address"),
-        ("all", "All"),
-        ("about", "About"),
-        ("exit", "Exit"),
-    ],
-    style=style,
-    bottom_toolbar=HTML(
-        " Press <b>[Up]</b>/<b>[Down]</b> to select, <b>[Enter]</b> to accept."
-    ),
-    show_frame=True,
+        message = HTML("\U0001F436 <u>Search for dog parks in Madrid</u>:"),
+        options = [
+            ("district", "District"),
+            ("postal", "Postal code"),
+            ("address", "Address"),
+            ("all", "All"),
+            ("about", "About"),
+            ("exit", "Exit"),
+        ],
+        style = style,
+        bottom_toolbar = HTML(
+            " Press <b>[Up]</b>/<b>[Down]</b> to select, <b>[Enter]</b> to accept."
+        ),
+        show_frame = True,
     )       
 
     if result == 'district':
@@ -128,13 +128,12 @@ while (True):
         ),
         multiline=False,
         key_bindings=bindings,
-        completer=html_completer,
-        validator=valid,
+        completer=districts_completer,
+        validator=district_validator,
         validate_while_typing=False)
         
         if answer != None:
             print();
-
             table = Table(title="Dog areas - District:" + answer)
             table.add_column("Neighborhood", style="cyan", no_wrap=True)
             table.add_column("Address", style="magenta")
@@ -194,7 +193,7 @@ while (True):
         ),
         multiline=False,
         key_bindings=bindings, 
-        validator=valid2,
+        validator=postal_code_validator,
         validate_while_typing=False)
         
         if answer != None:
