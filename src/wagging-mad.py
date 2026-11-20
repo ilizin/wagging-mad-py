@@ -1,5 +1,7 @@
 import requests
 import re
+import sys
+
 from datetime import date
 
 from rich.text import Text
@@ -7,17 +9,13 @@ from rich.console import Console
 from rich.table import Table
 from rich.align import Align
 
-from prompt_toolkit.filters import is_done
 from prompt_toolkit.formatted_text import HTML
 from prompt_toolkit.shortcuts import choice, set_title, clear
 from prompt_toolkit.styles import Style
-from prompt_toolkit.buffer import Buffer
-from prompt_toolkit.layout.containers import VSplit, Window
-from prompt_toolkit.layout.controls import BufferControl, FormattedTextControl
-from prompt_toolkit.layout.layout import Layout
 from prompt_toolkit import prompt, print_formatted_text
-from prompt_toolkit.formatted_text import HTML
-
+from prompt_toolkit.completion import WordCompleter
+from prompt_toolkit.key_binding import KeyBindings
+from prompt_toolkit.validation import Validator
 
 def get_data(url):
     try:
@@ -25,42 +23,31 @@ def get_data(url):
         response.raise_for_status()
         response_json = response.json()
         return response_json
-
     except requests.exceptions.HTTPError as errh:
         print(f"Error HTTP: {errh}")
     except requests.exceptions.ConnectionError as errc:
-        print(f"Error de Conexión: {errc}")
+        print(f"ConnectionError: {errc}")
     except requests.exceptions.Timeout as errt:
-        print(f"Error de Tiempo de Espera (Timeout): {errt}")
+        print(f"Timeout: {errt}")
     except requests.exceptions.RequestException as err:
-        print(f"Error general en la petición: {err}")
+        print(f"RequestException: {err}")
     except ValueError:
-        print("La respuesta recibida no es un JSON válido")
+        print("The response received is not a valid JSON")
     return None
     
+dog_parks_url = "https://datos.madrid.es/dataset/300094-0-areas-caninas/resource/300094-0-areas-caninas/download/300094-0-areas-caninas.json"
+madrid_districts_url = "https://datos.madrid.es/api/3/action/datastore_search?resource_id=300497-3-distritos-municipales-madrid"
 
-
-url = "https://datos.madrid.es/dataset/300094-0-areas-caninas/resource/300094-0-areas-caninas/download/300094-0-areas-caninas.json"
-url2 = "https://datos.madrid.es/api/3/action/datastore_search?resource_id=300497-3-distritos-municipales-madrid"
-
-response_json = get_data(url)
-response_json2 = get_data(url2)
-from prompt_toolkit.completion import WordCompleter
-
+dog_parks_json = get_data(dog_parks_url)
+districts_json = get_data(madrid_districts_url)
 
 districts = []
-for elem in response_json2['result']['records']:
-    print(elem['NOMBRE'])
-    districts.append(elem['NOMBRE'])
-    
-print(districts)
-
+districts_code = []
+for temp in districts_json['result']['records']:
+    districts.append(temp['NOMBRE'])
+    districts_code.append(temp['COD_DIS'])
 
 html_completer = WordCompleter(districts)
-
-
-
-
 
 style = Style.from_dict(
     {
@@ -73,24 +60,15 @@ style = Style.from_dict(
 
 set_title("WaggingMadPy")
 
-import sys
-
 def set_terminal_size(rows: int, columns: int) -> None:
-    # Escape sequence: \x1b[8;{rows};{columns}t
     sys.stdout.write(f"\x1b[8;{rows};{columns}t")
     sys.stdout.flush()
-
-from prompt_toolkit.application import run_in_terminal
-from prompt_toolkit.key_binding import KeyBindings
 
 bindings = KeyBindings()
 
 @bindings.add("escape")
 def _(event):
     event.app.exit()
-
-from prompt_toolkit.validation import Validator
-
 
 def is_number(text):
     return text.strip() in districts
@@ -111,14 +89,6 @@ valid2 = Validator.from_callable(
 )
 
 console = Console()
-
-date.fromtimestamp(1599696000)
-
-a = 1599696000000 // 1000
-print(a)
-print(date.today())
-print(date.fromtimestamp(1599696000).strftime("%m/%d/%Y"))
-input()
 
 while (True):
     clear()
@@ -172,7 +142,7 @@ while (True):
             table.add_column("Installation date", style="magenta")
             table.add_column("State", justify="center", style="green")
             #table = Align.center(table, vertical="middle")
-            for elem in response_json:
+            for elem in dog_parks_json:
                 a = elem['FECHA_INSTALACION']
                 a = a / 1000
                 strr = date.fromtimestamp(a).strftime("%m/%d/%Y")
@@ -194,7 +164,7 @@ while (True):
         #table.add_column("Installation date", style="magenta")
         table.add_column("State", style="magenta")
         #table = Align.center(table, vertical="middle")
-        for elem in response_json:
+        for elem in dog_parks_json:
             dist = elem['DISTRITO'].strip()
             bb = elem['BARRIO'].strip()
             via = elem['TIPO_VIA']
@@ -237,7 +207,7 @@ while (True):
             table.add_column("Installation date", style="magenta")
             table.add_column("State", style="magenta")
             #table = Align.center(table, vertical="middle")
-            for elem in response_json:
+            for elem in dog_parks_json:
                 a = elem['FECHA_INSTALACION']
                 a = a / 1000
                 strr = date.fromtimestamp(a).strftime("%m/%d/%Y")
