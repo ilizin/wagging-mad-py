@@ -82,19 +82,24 @@ def is_valid_district(text):
 def is_valid_postal_code(text):
     return re.search("^28[0-9][0-9][0-9]", text)
     
-def draw_table(title, dog_parks_json, console):
+def draw_table(title, dog_parks_json, console, table_type):
     table = Table(title = title)
+    if table_type != 'district':
+        table.add_column("District", style="cyan", no_wrap=True)
     table.add_column("Neighborhood", style="cyan", no_wrap=True)
     table.add_column("Address", style="magenta")
-    table.add_column("Postal code", justify="center", style="green")
+    if table_type != 'postal_code':
+        table.add_column("Postal code", justify="center", style="green")
     table.add_column("Installation date", style="magenta")
     table.add_column("State", justify="center", style="green")
     for temp in dog_parks_json:
         installationDateMillis = temp['FECHA_INSTALACION']
         installationDateSeconds = installationDateMillis / 1000
         installationDateStr = date.fromtimestamp(installationDateSeconds).strftime("%m/%d/%Y")
-        if temp['DISTRITO'].strip().lower() == answer.strip().lower():
+        if table_type == 'district' and temp['DISTRITO'] != None and temp['DISTRITO'].strip().lower() == answer.strip().lower():
             table.add_row(temp['BARRIO'].strip(), temp['TIPO_VIA'].strip() +  " " + temp['NOM_VIA'].strip() + " " + temp['NUM_VIA'].strip(), temp['COD_POSTAL'].strip(), installationDateStr, temp['ESTADO'].strip())        
+        if table_type == 'postal_code' and temp['COD_POSTAL'] != None and temp['COD_POSTAL'].strip().lower() == answer.strip().lower():  
+            table.add_row(temp['DISTRITO'].strip(), temp['BARRIO'].strip(), temp['TIPO_VIA'].strip() +  " " + temp['NOM_VIA'].strip() + " " + temp['NUM_VIA'].strip(), installationDateStr, temp['ESTADO'].strip())            
     align = Align(table,'center')
     console.print(align)
     
@@ -158,7 +163,7 @@ while (True):
         )
         if answer != None:
             print();
-            draw_table("Dog areas - District:" + answer, dog_parks_json, console)   
+            draw_table("Dog areas - District:" + answer, dog_parks_json, console, 'district')   
             input()
             
     if result == 'all':
@@ -180,10 +185,6 @@ while (True):
             if st == None: 
                 st = ""
             table.add_row(dist, bb, via, st)
-                    
-            
-            
-           
         align = Align(table,'center')
         console.print(align)
                     
@@ -191,40 +192,17 @@ while (True):
             
     if result == 'postal':
         answer = prompt("Enter a valid Madrid postal code: ",
-        style=style, 
-        show_frame=True,
-        bottom_toolbar=HTML(
-        " Press <b>[Enter]</b> to accept, <b>[Esc]</b> to cancel."
-        ),
-        multiline=False,
-        key_bindings=bindings, 
-        validator=postal_code_validator,
-        validate_while_typing=False)
-        
+            style = style, 
+            show_frame = True,
+            bottom_toolbar = HTML(" Press <b>[Enter]</b> to accept, <b>[Esc]</b> to cancel."),
+            multiline = False,
+            key_bindings = bindings, 
+            validator = postal_code_validator,
+            validate_while_typing = False
+        )
         if answer != None:
             print();
-
-            table = Table(title="Dog areas - Postal code:" + answer)
-            table.add_column("District", justify="center", style="green")
-            table.add_column("Neighborhood", style="cyan", no_wrap=True)
-            table.add_column("Address", style="magenta")
-            table.add_column("Installation date", style="magenta")
-            table.add_column("State", style="magenta")
-            #table = Align.center(table, vertical="middle")
-            for elem in dog_parks_json:
-                a = elem['FECHA_INSTALACION']
-                a = a / 1000
-                strr = date.fromtimestamp(a).strftime("%m/%d/%Y")
-                #print(elem['DISTRITO'])
-                if elem['COD_POSTAL'] != None and elem['COD_POSTAL'].strip().lower() == answer.strip().lower():
-                    table.add_row(elem['DISTRITO'].strip(), elem['BARRIO'].strip(), elem['TIPO_VIA'].strip() +  " " + elem['NOM_VIA'].strip() + " " + elem['NUM_VIA'].strip(), strr, elem['ESTADO'].strip())
-                    
-            
-            
-           
-            align = Align(table,'center')
-            console.print(align)
-                    
+            draw_table("Dog areas - Postal code:" + answer, dog_parks_json, console, 'postal_code')     
             input()
      
     if result == 'exit':
