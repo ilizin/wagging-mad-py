@@ -78,6 +78,9 @@ def _(event):
 
 def is_valid_district(text):
     return text.strip() in districts
+
+def is_valid_neighborhood(text):
+    return text.strip() in neighborhoods
     
 def is_valid_postal_code(text):
     return re.search("^28[0-9][0-9][0-9]", text)
@@ -86,7 +89,8 @@ def draw_table(title, dog_parks_json, console, table_type):
     table = Table(title = title)
     if table_type != 'district':
         table.add_column("District", style="cyan", no_wrap=True)
-    table.add_column("Neighborhood", style="cyan", no_wrap=True)
+    if table_type != 'neighborhood': 
+        table.add_column("Neighborhood", style="cyan", no_wrap=True)
     table.add_column("Address", style="magenta")
     if table_type != 'postal_code':
         table.add_column("Postal code", justify="center", style="green")
@@ -99,24 +103,34 @@ def draw_table(title, dog_parks_json, console, table_type):
         if table_type == 'district' and temp['DISTRITO'] != None and temp['DISTRITO'].strip().lower() == answer.strip().lower():
             table.add_row(temp['BARRIO'].strip(), temp['TIPO_VIA'].strip() +  " " + temp['NOM_VIA'].strip() + " " + temp['NUM_VIA'].strip(), temp['COD_POSTAL'].strip(), installationDateStr, temp['ESTADO'].strip())        
         if table_type == 'postal_code' and temp['COD_POSTAL'] != None and temp['COD_POSTAL'].strip().lower() == answer.strip().lower():  
-            table.add_row(temp['DISTRITO'].strip(), temp['BARRIO'].strip(), temp['TIPO_VIA'].strip() +  " " + temp['NOM_VIA'].strip() + " " + temp['NUM_VIA'].strip(), installationDateStr, temp['ESTADO'].strip())            
+            table.add_row(temp['DISTRITO'].strip(), temp['BARRIO'].strip(), temp['TIPO_VIA'].strip() +  " " + temp['NOM_VIA'].strip() + " " + temp['NUM_VIA'].strip(), installationDateStr, temp['ESTADO'].strip())   
+        if table_type == 'neighborhood' and temp['BARRIO'] != None and temp['BARRIO'].strip().lower() == answer.strip().lower():  
+            table.add_row(temp['DISTRITO'].strip(), temp['TIPO_VIA'].strip() +  " " + temp['NOM_VIA'].strip() + " " + temp['NUM_VIA'].strip(), installationDateStr, temp['ESTADO'].strip())                        
     align = Align(table,'center')
     console.print(align)
     
 district_validator = Validator.from_callable(
     is_valid_district,
-    error_message="The district is not valid",
-    move_cursor_to_end=True
+    error_message = "The district is not valid",
+    move_cursor_to_end = True
 )
 
 postal_code_validator = Validator.from_callable(
     is_valid_postal_code,
-    error_message="The postal code is not valid",
-    move_cursor_to_end=True
+    error_message = "The postal code is not valid",
+    move_cursor_to_end = True
+)
+
+neighborhood_validator = Validator.from_callable(
+    is_valid_neighborhood,
+    error_message = "The neighborhood is not valid",
+    move_cursor_to_end = True
 )
 
 set_title("WaggingMadPy")
 districts_completer = WordCompleter(districts)
+neighborhoods_completer = WordCompleter(neighborhoods)
+
 console = Console()
 
 while (True):
@@ -134,7 +148,7 @@ while (True):
         message = HTML("\U0001F436 <u>Search for dog parks in Madrid</u>:"),
         options = [
             ("district", "District"),
-            ("neighborhoods", "Neighborhoods"),
+            ("neighborhood", "Neighborhood"),
             ("postal", "Postal code"),
             ("address", "Address"),
             ("all", "All"),
@@ -164,6 +178,24 @@ while (True):
         if answer != None:
             print();
             draw_table("Dog areas - District:" + answer, dog_parks_json, console, 'district')   
+            input()
+            
+    if result == 'neighborhood':
+        answer = prompt("Enter a valid Madrid neighborhood: ",
+            style = style, 
+            show_frame = True,
+            bottom_toolbar=HTML(
+                " Press <b>[Space]</b> to see all the neighborhoods, <b>[Up]</b>/<b>[Down]</b> to select, <b>[Enter]</b> to accept, <b>[Esc]</b> to cancel."
+            ),
+            multiline = False,
+            key_bindings = bindings,
+            completer = neighborhoods_completer,
+            validator = neighborhood_validator,
+            validate_while_typing = False
+        )
+        if answer != None:
+            print();
+            draw_table("Dog areas - Neighborhood:" + answer, dog_parks_json, console, 'neighborhood')   
             input()
             
     if result == 'all':
