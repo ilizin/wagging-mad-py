@@ -39,11 +39,9 @@ dog_parks_url = "https://datos.madrid.es/dataset/300094-0-areas-caninas/resource
 madrid_districts_url = "https://datos.madrid.es/api/3/action/datastore_search?resource_id=300497-3-distritos-municipales-madrid"
 madrid_neighborhood_url = "https://datos.madrid.es/api/3/action/datastore_search?resource_id=300496-4-barrios-madrid"
 
-
 dog_parks_json = get_data(dog_parks_url)
 districts_json = get_data(madrid_districts_url)
 neighborhood_json = get_data(madrid_neighborhood_url)
-
 
 districts = []
 districts_code = []
@@ -75,15 +73,6 @@ bindings = KeyBindings()
 @bindings.add("escape")
 def _(event):
     event.app.exit()
-
-def is_valid_district(text):
-    return text.strip() in districts
-
-def is_valid_neighborhood(text):
-    return text.strip() in neighborhoods
-    
-def is_valid_postal_code(text):
-    return re.search("^28[0-9][0-9][0-9]", text)
     
 def draw_table(title, dog_parks_json, console, table_type):
     table = Table(title = title)
@@ -100,14 +89,31 @@ def draw_table(title, dog_parks_json, console, table_type):
         installationDateMillis = temp['FECHA_INSTALACION']
         installationDateSeconds = installationDateMillis / 1000
         installationDateStr = date.fromtimestamp(installationDateSeconds).strftime("%m/%d/%Y")
+        address = temp['TIPO_VIA'].strip() if temp['TIPO_VIA'] != None else ""
+        address += temp['NOM_VIA'].strip() if temp['NOM_VIA'] != None else ""
+        address += temp['NUM_VIA'].strip() if temp['NUM_VIA'] != None else ""
+        
+        postal_code = ""
+        if table_type != 'postal_code':
+            postal_code = temp['COD_POSTAL'].strip() if temp['COD_POSTAL'] != None else ""
+        
         if table_type == 'district' and temp['DISTRITO'] != None and temp['DISTRITO'].strip().lower() == answer.strip().lower():
-            table.add_row(temp['BARRIO'].strip(), temp['TIPO_VIA'].strip() +  " " + temp['NOM_VIA'].strip() + " " + temp['NUM_VIA'].strip(), temp['COD_POSTAL'].strip(), installationDateStr, temp['ESTADO'].strip())        
+            table.add_row(temp['BARRIO'].strip(), address, postal_code, installationDateStr, temp['ESTADO'].strip())        
         if table_type == 'postal_code' and temp['COD_POSTAL'] != None and temp['COD_POSTAL'].strip().lower() == answer.strip().lower():  
-            table.add_row(temp['DISTRITO'].strip(), temp['BARRIO'].strip(), temp['TIPO_VIA'].strip() +  " " + temp['NOM_VIA'].strip() + " " + temp['NUM_VIA'].strip(), installationDateStr, temp['ESTADO'].strip())   
+            table.add_row(temp['DISTRITO'].strip(), temp['BARRIO'].strip(), address, installationDateStr, temp['ESTADO'].strip())   
         if table_type == 'neighborhood' and temp['BARRIO'] != None and temp['BARRIO'].strip().lower() == answer.strip().lower():  
-            table.add_row(temp['DISTRITO'].strip(), temp['TIPO_VIA'].strip() +  " " + temp['NOM_VIA'].strip() + " " + temp['NUM_VIA'].strip(), installationDateStr, temp['ESTADO'].strip())                        
+            table.add_row(temp['DISTRITO'].strip(), address, postal_code, installationDateStr, temp['ESTADO'].strip())                        
     align = Align(table,'center')
     console.print(align)
+
+def is_valid_district(text):
+    return text.strip() in districts
+
+def is_valid_neighborhood(text):
+    return text.strip() in neighborhoods
+    
+def is_valid_postal_code(text):
+    return re.search("^28[0-9][0-9][0-9]", text)
     
 district_validator = Validator.from_callable(
     is_valid_district,
@@ -127,10 +133,10 @@ neighborhood_validator = Validator.from_callable(
     move_cursor_to_end = True
 )
 
-set_title("WaggingMadPy")
 districts_completer = WordCompleter(districts)
 neighborhoods_completer = WordCompleter(neighborhoods)
 
+set_title("WaggingMadPy")
 console = Console()
 
 while (True):
