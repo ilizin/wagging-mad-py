@@ -47,13 +47,13 @@ districts = []
 districts_code = []
 for temp in districts_json['result']['records']:
     districts.append(temp['NOMBRE'])
-    districts_code.append(temp['COD_DIS'])
+    districts_code.append(temp['COD_DIS_TX'])
     
 neighborhoods = []
 neighborhoods_code = []
 for temp in neighborhood_json['result']['records']:
     neighborhoods.append(temp['NOMBRE'])
-    neighborhoods_code.append(temp['NUM_BAR'])
+    neighborhoods_code.append(temp['COD_BAR'])
 
 style = Style.from_dict(
     {
@@ -74,7 +74,7 @@ bindings = KeyBindings()
 def _(event):
     event.app.exit()
     
-def draw_table(title, dog_parks_json, console, table_type):
+def draw_table(title, dog_parks_json, console, table_type, answer, code):
     table = Table(title = title)
     if table_type != 'district':
         table.add_column("District", style="cyan", no_wrap=True)
@@ -97,11 +97,11 @@ def draw_table(title, dog_parks_json, console, table_type):
         if table_type != 'postal_code':
             postal_code = temp['COD_POSTAL'].strip() if temp['COD_POSTAL'] != None else ""
         
-        if table_type == 'district' and temp['DISTRITO'] != None and temp['DISTRITO'].strip().lower() == answer.strip().lower():
+        if table_type == 'district' and temp['DISTRITO'] != None and temp['COD_DISTRITO'].strip() == code.strip():
             table.add_row(temp['BARRIO'].strip(), address, postal_code, installationDateStr, temp['ESTADO'].strip())        
         if table_type == 'postal_code' and temp['COD_POSTAL'] != None and temp['COD_POSTAL'].strip().lower() == answer.strip().lower():  
             table.add_row(temp['DISTRITO'].strip(), temp['BARRIO'].strip(), address, installationDateStr, temp['ESTADO'].strip())   
-        if table_type == 'neighborhood' and temp['BARRIO'] != None and temp['BARRIO'].strip().lower() == answer.strip().lower():  
+        if table_type == 'neighborhood' and temp['BARRIO'] != None and temp['COD_BARRIO'].strip() == code.strip():  
             table.add_row(temp['DISTRITO'].strip(), address, postal_code, installationDateStr, temp['ESTADO'].strip())                        
     align = Align(table,'center')
     console.print(align)
@@ -133,8 +133,8 @@ neighborhood_validator = Validator.from_callable(
     move_cursor_to_end = True
 )
 
-districts_completer = WordCompleter(districts)
-neighborhoods_completer = WordCompleter(neighborhoods)
+districts_completer = WordCompleter(districts, ignore_case = True)
+neighborhoods_completer = WordCompleter(neighborhoods, ignore_case = True)
 
 set_title("WaggingMadPy")
 console = Console()
@@ -183,7 +183,8 @@ while (True):
         )
         if answer != None:
             print();
-            draw_table("Dog areas - District:" + answer, dog_parks_json, console, 'district')   
+            index = districts.index(answer.strip())
+            draw_table("Dog areas - District:" + answer, dog_parks_json, console, 'district', answer, districts_code[index])   
             input()
             
     if result == 'neighborhood':
@@ -201,7 +202,8 @@ while (True):
         )
         if answer != None:
             print();
-            draw_table("Dog areas - Neighborhood:" + answer, dog_parks_json, console, 'neighborhood')   
+            index = neighborhoods.index(answer.strip())
+            draw_table("Dog areas - Neighborhood:" + answer, dog_parks_json, console, 'neighborhood', answer, neighborhoods_code[index])   
             input()
             
     if result == 'all':
@@ -240,7 +242,7 @@ while (True):
         )
         if answer != None:
             print();
-            draw_table("Dog areas - Postal code:" + answer, dog_parks_json, console, 'postal_code')     
+            draw_table("Dog areas - Postal code:" + answer, dog_parks_json, console, 'postal_code', answer, None)     
             input()
      
     if result == 'exit':
