@@ -44,7 +44,7 @@ madrid_districts_url = "https://datos.madrid.es/api/3/action/datastore_search?re
 madrid_neighborhood_url = "https://datos.madrid.es/api/3/action/datastore_search?resource_id=300496-4-barrios-madrid"
 
 def threaded_function(arg):
-   align = Align('Loading data', align='center',vertical='bottom')
+   align = Align('Loading data', align='center', vertical='middle', height=40)
    console.print(align)
    
 from threading import Thread
