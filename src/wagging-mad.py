@@ -3,6 +3,7 @@ import re
 import sys
 
 from datetime import date
+import time
 
 from rich.text import Text
 from rich.console import Console
@@ -43,10 +44,13 @@ dog_parks_url = "https://datos.madrid.es/dataset/300094-0-areas-caninas/resource
 madrid_districts_url = "https://datos.madrid.es/api/3/action/datastore_search?resource_id=300497-3-distritos-municipales-madrid"
 madrid_neighborhood_url = "https://datos.madrid.es/api/3/action/datastore_search?resource_id=300496-4-barrios-madrid"
 
+flag = True
 def threaded_function(arg):
-   align = Align('Loading data', align='center', vertical='middle', height=40)
-   console.print(align)
-   
+   while flag:
+       align = Align('Loading data...', align='center', vertical='middle', height=40)
+       console.print(align)
+       time.sleep(1)
+
 from threading import Thread
 
 clear()
@@ -59,11 +63,13 @@ set_terminal_size(40, 100)
 
 thread = Thread(target = threaded_function, args = (10, ))
 thread.start()
-
+console.print(100)
 dog_parks_json = get_data(dog_parks_url)
+console.print(1)
 districts_json = get_data(madrid_districts_url)
 neighborhood_json = get_data(madrid_neighborhood_url)
-
+flag = False
+console.print(200)
 thread.join()
 
 districts = []
