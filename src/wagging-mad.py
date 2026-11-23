@@ -34,14 +34,37 @@ def get_data(url):
     except ValueError:
         print("The response received is not a valid JSON")
     return None
+
+def set_terminal_size(rows: int, columns: int) -> None:
+    sys.stdout.write(f"\x1b[8;{rows};{columns}t")
+    sys.stdout.flush()
     
 dog_parks_url = "https://datos.madrid.es/dataset/300094-0-areas-caninas/resource/300094-0-areas-caninas/download/300094-0-areas-caninas.json"
 madrid_districts_url = "https://datos.madrid.es/api/3/action/datastore_search?resource_id=300497-3-distritos-municipales-madrid"
 madrid_neighborhood_url = "https://datos.madrid.es/api/3/action/datastore_search?resource_id=300496-4-barrios-madrid"
 
+def threaded_function(arg):
+   align = Align('Loading data', align='center',vertical='bottom')
+   console.print(align)
+   
+from threading import Thread
+
+clear()
+
+set_title("WaggingMadPy")
+console = Console()
+set_terminal_size(40, 100)
+
+
+
+thread = Thread(target = threaded_function, args = (10, ))
+thread.start()
+
 dog_parks_json = get_data(dog_parks_url)
 districts_json = get_data(madrid_districts_url)
 neighborhood_json = get_data(madrid_neighborhood_url)
+
+thread.join()
 
 districts = []
 districts_code = []
@@ -64,9 +87,7 @@ style = Style.from_dict(
     }
 )
 
-def set_terminal_size(rows: int, columns: int) -> None:
-    sys.stdout.write(f"\x1b[8;{rows};{columns}t")
-    sys.stdout.flush()
+
 
 bindings = KeyBindings()
 
@@ -136,8 +157,7 @@ neighborhood_validator = Validator.from_callable(
 districts_completer = WordCompleter(districts, ignore_case = True)
 neighborhoods_completer = WordCompleter(neighborhoods, ignore_case = True)
 
-set_title("WaggingMadPy")
-console = Console()
+
 
 while (True):
     clear()
