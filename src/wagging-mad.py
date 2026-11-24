@@ -144,10 +144,16 @@ def draw_table(title, dog_parks_json, console, table_type, answer, code):
     console.print(align)
 
 def is_valid_district(text):
-    return text.strip() in districts
+    for temp in districts:
+        if text.strip().lower() == temp.strip().lower():
+            return True
+    return False
 
-def is_valid_neighborhood(text):
-    return text.strip() in neighborhoods
+def is_valid_neighborhood(text):    
+    for temp in neighborhoods:
+        if text.strip().lower() == temp.strip().lower():
+            return True
+    return False
     
 def is_valid_postal_code(text):
     return re.search("^28[0-9][0-9][0-9]", text)
@@ -218,8 +224,9 @@ while (True):
             validate_while_typing = False
         )
         if answer != None:
-            print();
-            index = districts.index(answer.strip())
+            for index in range(len(districts)):
+                if answer.strip().lower() == districts[index].strip().lower():
+                    break;
             draw_table("Dog areas - District:" + answer, dog_parks_json, console, 'district', answer, districts_code[index])   
             input()
             
@@ -237,8 +244,9 @@ while (True):
             validate_while_typing = False
         )
         if answer != None:
-            print();
-            index = neighborhoods.index(answer.strip())
+            for index in range(len(neighborhoods)):
+                if answer.strip().lower() == neighborhoods[index].strip().lower():
+                    break;
             draw_table("Dog areas - Neighborhood:" + answer, dog_parks_json, console, 'neighborhood', answer, neighborhoods_code[index])   
             input()
             
@@ -247,7 +255,6 @@ while (True):
         table.add_column("District", justify="center", style="green")
         table.add_column("Neighborhood", style="cyan", no_wrap=True)
         table.add_column("Address", style="magenta")
-        #table.add_column("Installation date", style="magenta")
         table.add_column("State", style="magenta")
         for elem in dog_parks_json:
             dist = elem['DISTRITO'].strip()
