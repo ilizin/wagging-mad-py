@@ -46,10 +46,23 @@ madrid_neighborhood_url = "https://datos.madrid.es/api/3/action/datastore_search
 
 flag = True
 def threaded_function(arg):
+   
+   step = 1
    while flag:
-       align = Align('Loading data...', align='center', vertical='middle', height=40)
+       if step == 1:
+           align = Align('Loading data.', align='center', vertical='middle', height=40)
+       if step == 2:
+           align = Align(' Loading data..', align='center', vertical='middle', height=40)
+       if step == 3:
+           align = Align('  Loading data...', align='center', vertical='middle', height=40)
+       if step == 4:
+           align = Align('   Loading data....', align='center', vertical='middle', height=40)
+       if step == 5:
+           align = Align('    Loading data.....', align='center', vertical='middle', height=40)
+           step = 0
        console.print(align)
-       time.sleep(1)
+       time.sleep(0.5)
+       step = step + 1
 
 from threading import Thread
 
@@ -63,13 +76,10 @@ set_terminal_size(40, 100)
 
 thread = Thread(target = threaded_function, args = (10, ))
 thread.start()
-console.print(100)
 dog_parks_json = get_data(dog_parks_url)
-console.print(1)
 districts_json = get_data(madrid_districts_url)
 neighborhood_json = get_data(madrid_neighborhood_url)
 flag = False
-console.print(200)
 thread.join()
 
 districts = []
