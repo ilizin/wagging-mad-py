@@ -107,13 +107,17 @@ style = Style.from_dict(
 
 bindings = KeyBindings()
 bindings2 = KeyBindings()
-
+bindings3 = KeyBindings()
 
 @bindings.add("escape")
 def _(event):
     event.app.exit()
     
 @bindings2.add("escape")
+def _(event):
+    event.app.exit(result='exit')
+    
+@bindings2.add('a')
 def _(event):
     event.app.exit(result='exit')
     
@@ -191,7 +195,7 @@ while (True):
     clear()
 
     set_terminal_size(40, 100)
-    print_formatted_text()
+    print_formatted_text(HTML('<aaa fg="ansiwhite" bg="ansigreen">White on green</aaa>'))
     print_formatted_text()
     print_formatted_text(HTML('<b> In Madrid, dog areas (áreas caninas or pipicanes) are designated, fenced-in public spaces located</b>'))
     print_formatted_text(HTML('<b> within urban parks and green areas where dogs are legally allowed to run, play, and socialize </b>'))
