@@ -208,7 +208,6 @@ while (True):
             ("address", "Address"),
             ("all", "All"),
             ("about", "About"),
-            ("exit", "Exit"),
         ],
         style = style,
         bottom_toolbar = HTML(
