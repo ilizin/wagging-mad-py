@@ -106,10 +106,16 @@ style = Style.from_dict(
 
 
 bindings = KeyBindings()
+bindings2 = KeyBindings()
+
 
 @bindings.add("escape")
 def _(event):
     event.app.exit()
+    
+@bindings2.add("escape")
+def _(event):
+    event.app.exit(result='exit')
     
 def draw_table(title, dog_parks_json, console, table_type, answer, code):
     table = Table(title = title)
@@ -186,6 +192,7 @@ while (True):
 
     set_terminal_size(40, 100)
     print_formatted_text()
+    print_formatted_text()
     print_formatted_text(HTML('<b> In Madrid, dog areas (áreas caninas or pipicanes) are designated, fenced-in public spaces located</b>'))
     print_formatted_text(HTML('<b> within urban parks and green areas where dogs are legally allowed to run, play, and socialize </b>'))
     print_formatted_text(HTML('<b> completely off-leash. Maintained by the city council, these enclosures offer a safe environment </b>')) 
@@ -207,6 +214,7 @@ while (True):
         bottom_toolbar = HTML(
             " Press <b>[Up]</b>/<b>[Down]</b> to select, <b>[Enter]</b> to accept."
         ),
+        key_bindings = bindings2,
         show_frame = True,
     )       
 
