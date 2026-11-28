@@ -9,6 +9,9 @@ from rich.text import Text
 from rich.console import Console
 from rich.table import Table
 from rich.align import Align
+from threading import Thread
+
+#import msvcrt
 
 from prompt_toolkit.formatted_text import HTML
 from prompt_toolkit.shortcuts import choice, set_title, clear
@@ -18,6 +21,8 @@ from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.validation import Validator
 
+
+        
 def get_data(url):
     try:
         response = requests.get(url, timeout=20)
@@ -82,6 +87,7 @@ neighborhood_json = get_data(madrid_neighborhood_url)
 flag = False
 thread.join()
 
+
 districts = []
 districts_code = []
 for temp in districts_json['result']['records']:
@@ -108,7 +114,7 @@ style = Style.from_dict(
 bindings = KeyBindings()
 bindings2 = KeyBindings()
 bindings3 = KeyBindings()
-
+r = KeyBindings()
 @bindings.add("escape")
 def _(event):
     event.app.exit()
@@ -120,6 +126,10 @@ def _(event):
 @bindings2.add('a')
 def _(event):
     event.app.exit(result='exit')
+ 
+@r.add('<any>') 
+def _(event):
+    pass
     
 def draw_table(title, dog_parks_json, console, table_type, answer, code):
     table = Table(title = title)
@@ -132,6 +142,7 @@ def draw_table(title, dog_parks_json, console, table_type, answer, code):
         table.add_column("Postal code", justify="center", style="green")
     table.add_column("Installation date", style="magenta")
     table.add_column("State", justify="center", style="green")
+    count = 0
     for temp in dog_parks_json:
         installationDateMillis = temp['FECHA_INSTALACION']
         installationDateSeconds = installationDateMillis / 1000
@@ -148,13 +159,22 @@ def draw_table(title, dog_parks_json, console, table_type, answer, code):
             estado = "IN SERVICE"
         
         if table_type == 'district' and temp['DISTRITO'] != None and temp['COD_DISTRITO'].strip() == code.strip():
-            table.add_row(temp['BARRIO'].strip(), address, postal_code, installationDateStr, estado)        
+            table.add_row(temp['BARRIO'].strip(), address, postal_code, installationDateStr, estado)  
+            count += 1
         if table_type == 'postal_code' and temp['COD_POSTAL'] != None and temp['COD_POSTAL'].strip().lower() == answer.strip().lower():  
-            table.add_row(temp['DISTRITO'].strip(), temp['BARRIO'].strip(), address, installationDateStr, estado)   
+            table.add_row(temp['DISTRITO'].strip(), temp['BARRIO'].strip(), address, installationDateStr, estado) 
+            count += 1
         if table_type == 'neighborhood' and temp['BARRIO'] != None and temp['COD_BARRIO'].strip() == code.strip():  
-            table.add_row(temp['DISTRITO'].strip(), address, postal_code, installationDateStr, estado)                        
-    align = Align(table,'center')
-    console.print(align)
+            table.add_row(temp['DISTRITO'].strip(), address, postal_code, installationDateStr, estado) 
+            count += 1   
+    if count > 0:
+        align = Align(table,'center')
+        console.print(align)
+    else:
+        align = Align(Text("No results match your search criteria."),'center')
+        console.print(align)
+    print()
+    prompt(HTML("<i>Press Enter to continue.</i>"), key_bindings = r)
 
 def is_valid_district(text):
     for temp in districts:
@@ -198,8 +218,8 @@ while (True):
     clear()
 
     set_terminal_size(40, 100)
-    print_formatted_text(HTML('<aaa fg="ansiwhite" bg="ansigreen">White on green</aaa>'))
-    print_formatted_text()
+    print_formatted_text(HTML('<aaa fg="ansiwhite" bg="ansigreen">ESC (Exit) A (About)</aaa>'))
+    print()
     print_formatted_text(HTML('<b> In Madrid, dog areas (áreas caninas or pipicanes) are designated, fenced-in public spaces located</b>'))
     print_formatted_text(HTML('<b> within urban parks and green areas where dogs are legally allowed to run, play, and socialize </b>'))
     print_formatted_text(HTML('<b> completely off-leash. Maintained by the city council, these enclosures offer a safe environment </b>')) 
@@ -214,7 +234,6 @@ while (True):
             ("postal", "Postal code"),
             ("address", "Address"),
             ("all", "All"),
-            ("about", "About"),
         ],
         style = style,
         bottom_toolbar = HTML(
@@ -238,11 +257,11 @@ while (True):
             validate_while_typing = False
         )
         if answer != None:
+            print();
             for index in range(len(districts)):
                 if answer.strip().lower() == districts[index].strip().lower():
                     break;
             draw_table("Dog areas - District:" + answer, dog_parks_json, console, 'district', answer, districts_code[index])   
-            input()
             
     if result == 'neighborhood':
         answer = prompt("Enter a valid Madrid neighborhood: ",
@@ -258,16 +277,16 @@ while (True):
             validate_while_typing = False
         )
         if answer != None:
+            print();
             for index in range(len(neighborhoods)):
                 if answer.strip().lower() == neighborhoods[index].strip().lower():
                     break;
             draw_table("Dog areas - Neighborhood:" + answer, dog_parks_json, console, 'neighborhood', answer, neighborhoods_code[index])   
-            input()
             
     if result == 'all':
         table = Table(title="Dog areas")
         table.add_column("District", justify="center", style="green")
-        table.add_column("Neighborhood", style="cyan", no_wrap=True)
+        table.add_column("Neighborhood", style="cyan")
         table.add_column("Address", style="magenta")
         table.add_column("State", style="magenta")
         for elem in dog_parks_json:
@@ -300,7 +319,6 @@ while (True):
         if answer != None:
             print();
             draw_table("Dog areas - Postal code:" + answer, dog_parks_json, console, 'postal_code', answer, None)     
-            input()
      
     if result == 'exit':
         break;
