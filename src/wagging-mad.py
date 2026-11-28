@@ -143,13 +143,16 @@ def draw_table(title, dog_parks_json, console, table_type, answer, code):
         postal_code = ""
         if table_type != 'postal_code':
             postal_code = temp['COD_POSTAL'].strip() if temp['COD_POSTAL'] != None else ""
+        estado = ""
+        if temp['ESTADO'].strip().lower() == "operativo":
+            estado = "IN SERVICE"
         
         if table_type == 'district' and temp['DISTRITO'] != None and temp['COD_DISTRITO'].strip() == code.strip():
-            table.add_row(temp['BARRIO'].strip(), address, postal_code, installationDateStr, temp['ESTADO'].strip())        
+            table.add_row(temp['BARRIO'].strip(), address, postal_code, installationDateStr, estado)        
         if table_type == 'postal_code' and temp['COD_POSTAL'] != None and temp['COD_POSTAL'].strip().lower() == answer.strip().lower():  
-            table.add_row(temp['DISTRITO'].strip(), temp['BARRIO'].strip(), address, installationDateStr, temp['ESTADO'].strip())   
+            table.add_row(temp['DISTRITO'].strip(), temp['BARRIO'].strip(), address, installationDateStr, estado)   
         if table_type == 'neighborhood' and temp['BARRIO'] != None and temp['COD_BARRIO'].strip() == code.strip():  
-            table.add_row(temp['DISTRITO'].strip(), address, postal_code, installationDateStr, temp['ESTADO'].strip())                        
+            table.add_row(temp['DISTRITO'].strip(), address, postal_code, installationDateStr, estado)                        
     align = Align(table,'center')
     console.print(align)
 
